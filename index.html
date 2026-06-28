@@ -128,6 +128,7 @@
     letter-spacing: 0.02em;
     color: var(--white);
     margin-bottom: 2rem;
+    animation: glitch-transform 9s infinite, glitch-shadow 9s infinite;
   }
 
   .hero-title span {
@@ -185,6 +186,83 @@
     letter-spacing: 0.14em;
     color: var(--dim);
     writing-mode: vertical-rl;
+  }
+
+  /* GLITCH */
+  @keyframes glitch-transform {
+    0%, 79%, 100% { transform: none; }
+    80%   { transform: skewX(-4deg) translateX(-7px); }
+    80.4% { transform: skewX(3deg)  translateX(5px); }
+    80.8% { transform: none; }
+    81.2% { transform: skewX(-2deg) translateX(-3px); }
+    81.6% { transform: none; }
+    87.5% { transform: skewX(1.5deg) translateX(3px); }
+    87.8% { transform: none; }
+  }
+
+  @keyframes glitch-shadow {
+    0%, 79%, 100% { text-shadow: none; }
+    80%   { text-shadow: -7px 0 #ff003c, 7px 0 #00e5ff; }
+    80.4% { text-shadow:  7px 0 #ff003c,-7px 0 #00e5ff; }
+    80.8% { text-shadow: -4px 0 #ff003c, 4px 0 #00e5ff; }
+    81.2% { text-shadow: none; }
+    81.5% { text-shadow: -9px 0 rgba(255,0,60,0.4), 9px 0 rgba(0,229,255,0.4); }
+    81.8% { text-shadow: none; }
+    87.5% { text-shadow: -3px 0 #ff003c, 3px 0 #00e5ff; }
+    87.8% { text-shadow: none; }
+  }
+
+  @keyframes glitch-bar-1 {
+    0%, 79%, 100% { transform: translateY(-100vh); opacity: 0; }
+    80%   { transform: translateY(22vh); opacity: 0.55; }
+    80.4% { transform: translateY(60vh); opacity: 0.30; }
+    80.8% { transform: translateY(-100vh); opacity: 0; }
+    81.2% { transform: translateY(40vh); opacity: 0.45; }
+    81.6% { transform: translateY(-100vh); opacity: 0; }
+    87.5% { transform: translateY(50vh); opacity: 0.30; }
+    87.8% { transform: translateY(-100vh); opacity: 0; }
+  }
+
+  @keyframes glitch-bar-2 {
+    0%, 79.3%, 100% { transform: translateY(-100vh); opacity: 0; }
+    80.2% { transform: translateY(65vh); opacity: 0.55; }
+    80.6% { transform: translateY(13vh); opacity: 0.65; }
+    81.0% { transform: translateY(-100vh); opacity: 0; }
+    81.4% { transform: translateY(75vh); opacity: 0.30; }
+    81.8% { transform: translateY(-100vh); opacity: 0; }
+  }
+
+  .hero-glitch-bars {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .hero-glitch-bars::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      transparent 5%,
+      var(--red) 25%,
+      #00e5ff 55%,
+      var(--red) 80%,
+      transparent 95%
+    );
+    animation: glitch-bar-1 9s infinite;
+  }
+
+  .hero-glitch-bars::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    height: 1px;
+    background: rgba(0, 229, 255, 0.75);
+    animation: glitch-bar-2 9s infinite;
   }
 
   /* SECTIONS */
@@ -518,6 +596,7 @@
 <div class="hero">
   <div class="hero-bg"></div>
   <div class="hero-noise"></div>
+  <div class="hero-glitch-bars"></div>
   <div class="hero-line"></div>
   <div class="hero-counter">SAINT MISTAKE &mdash; EST. HERE &mdash;</div>
   <div class="hero-content">
@@ -661,6 +740,55 @@ This space is yours to fill.</div>
   <span class="footer-name">Saint Mistake</span>
   <span class="footer-copy">&copy; 2026 &mdash; All rights reserved</span>
 </footer>
+
+<script>
+(function () {
+  var title = document.querySelector('.hero-title');
+  var chars  = '╬║▓░█▄▀▐▌╪╩═╔╗╚╝▒■▪◆╫';
+
+  function getTextNodes(el) {
+    var out = [], w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+    var n;
+    while ((n = w.nextNode())) { if (n.textContent.trim()) out.push(n); }
+    return out;
+  }
+
+  function corrupt(nodes, rate) {
+    var saved = nodes.map(function (n) { return n.textContent; });
+    nodes.forEach(function (n) {
+      n.textContent = n.textContent.split('').map(function (c) {
+        return (c.trim() && Math.random() < rate)
+          ? chars[Math.floor(Math.random() * chars.length)]
+          : c;
+      }).join('');
+    });
+    return saved;
+  }
+
+  function runGlitch() {
+    var nodes = getTextNodes(title);
+    var saved = corrupt(nodes, 0.28);
+    setTimeout(function () {
+      nodes.forEach(function (n, i) { n.textContent = saved[i]; });
+    }, 85);
+
+    if (Math.random() < 0.55) {
+      setTimeout(function () {
+        var saved2 = corrupt(nodes, 0.15);
+        setTimeout(function () {
+          nodes.forEach(function (n, i) { n.textContent = saved2[i]; });
+        }, 60);
+      }, 140);
+    }
+  }
+
+  /* Fire roughly in sync with the 9s CSS animation cycle (glitch at ~80% = 7.2s) */
+  setTimeout(function kick() {
+    runGlitch();
+    setTimeout(kick, 8500 + Math.random() * 1200);
+  }, 7200);
+})();
+</script>
 
 </body>
 </html>
