@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saint Mistake</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0a0a0a;
+    --off-black: #111111;
+    --dark: #1a1a1a;
+    --mid: #2e2e2e;
+    --dim: #555555;
+    --ash: #999999;
+    --light: #cccccc;
+    --white: #f0ece4;
+    --red: #c0392b;
+    --red-hot: #e74c3c;
+    --ink: #1c1c1c;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 3rem;
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--mid);
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.12em;
+    color: var(--white);
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ash);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--white); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 3rem 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to bottom, rgba(10,10,10,0.2) 0%, rgba(10,10,10,0.85) 70%, var(--black) 100%),
+      repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 2px,
+        rgba(255,255,255,0.015) 2px,
+        rgba(255,255,255,0.015) 4px
+      );
+    z-index: 0;
+  }
+
+  .hero-noise {
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 128px;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .hero-content { position: relative; z-index: 2; max-width: 1100px; }
+
+  .hero-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 1rem;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 14vw, 13rem);
+    line-height: 0.92;
+    letter-spacing: 0.02em;
+    color: var(--white);
+    margin-bottom: 2rem;
+  }
+
+  .hero-title span {
+    display: block;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--white);
+  }
+
+  .hero-desc {
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: var(--ash);
+    max-width: 420px;
+    margin-bottom: 2.5rem;
+    font-style: italic;
+    line-height: 1.8;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--white);
+    text-decoration: none;
+    border: 1px solid var(--mid);
+    padding: 0.9rem 2rem;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .hero-cta:hover {
+    background: var(--red);
+    border-color: var(--red);
+  }
+
+  .hero-line {
+    position: absolute;
+    top: 0; right: 3rem; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--mid) 30%, var(--mid) 70%, transparent);
+    z-index: 2;
+  }
+
+  .hero-counter {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    color: var(--dim);
+    writing-mode: vertical-rl;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 7rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    max-width: 60px;
+    height: 1px;
+    background: var(--red);
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    line-height: 1;
+    letter-spacing: 0.04em;
+    margin-bottom: 2rem;
+  }
+
+  /* MUSIC */
+  #music { border-top: 1px solid var(--mid); }
+
+  .music-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1px;
+    background: var(--mid);
+    margin-top: 3rem;
+  }
+
+  .track-card {
+    background: var(--off-black);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+
+  .track-card:hover { background: var(--dark); }
+
+  .track-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--dim);
+    letter-spacing: 0.15em;
+  }
+
+  .track-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.06em;
+    color: var(--white);
+  }
+
+  .track-meta {
+    font-size: 0.8rem;
+    color: var(--dim);
+    font-style: italic;
+  }
+
+  .track-play {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.16em;
+    color: var(--ash);
+    text-transform: uppercase;
+    margin-top: auto;
+  }
+
+  .play-dot {
+    width: 8px; height: 8px;
+    background: var(--red);
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+  }
+
+  /* PHOTOGRAPHY */
+  #photography { border-top: 1px solid var(--mid); }
+
+  .photo-intro {
+    font-size: 1.05rem;
+    color: var(--ash);
+    max-width: 500px;
+    font-style: italic;
+    margin-bottom: 3rem;
+    line-height: 1.9;
+  }
+
+  .photo-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 1px;
+    background: var(--mid);
+  }
+
+  .photo-cell {
+    background: var(--dark);
+    aspect-ratio: 1;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .photo-cell:first-child {
+    grid-row: span 2;
+    aspect-ratio: unset;
+  }
+
+  .photo-placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
+    background:
+      repeating-linear-gradient(
+        90deg,
+        rgba(255,255,255,0.02) 0px,
+        rgba(255,255,255,0.02) 1px,
+        transparent 1px,
+        transparent 40px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        rgba(255,255,255,0.02) 0px,
+        rgba(255,255,255,0.02) 1px,
+        transparent 1px,
+        transparent 40px
+      );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .photo-placeholder-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    color: var(--dim);
+    text-transform: uppercase;
+    transform: rotate(-45deg);
+  }
+
+  .photo-caption {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 1rem 1.2rem 1rem;
+    background: linear-gradient(transparent, rgba(10,10,10,0.9));
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--ash);
+    text-transform: uppercase;
+  }
+
+  /* WRITING / LYRICS */
+  #writing { border-top: 1px solid var(--mid); }
+
+  .lyric-block {
+    margin-top: 3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+  }
+
+  .lyric-piece {
+    border-left: 2px solid var(--red);
+    padding-left: 2rem;
+  }
+
+  .lyric-piece-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.08em;
+    color: var(--light);
+    margin-bottom: 1rem;
+  }
+
+  .lyric-text {
+    font-size: 0.95rem;
+    line-height: 2;
+    color: var(--ash);
+    font-style: italic;
+    white-space: pre-line;
+  }
+
+  .lyric-text em {
+    color: var(--white);
+    font-style: normal;
+  }
+
+  .lyric-source {
+    margin-top: 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    color: var(--dim);
+    text-transform: uppercase;
+  }
+
+  /* CONTACT */
+  #contact {
+    border-top: 1px solid var(--mid);
+    max-width: 1100px;
+    text-align: center;
+    padding-bottom: 8rem;
+  }
+
+  #contact .section-label { justify-content: center; }
+  #contact .section-label::after { display: none; }
+
+  .contact-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin-bottom: 1.5rem;
+  }
+
+  .contact-sub {
+    font-size: 0.95rem;
+    color: var(--ash);
+    font-style: italic;
+    margin-bottom: 2.5rem;
+  }
+
+  .contact-link {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--white);
+    text-decoration: none;
+    border: 1px solid var(--white);
+    padding: 1rem 2.5rem;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .contact-link:hover {
+    background: var(--white);
+    color: var(--black);
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--mid);
+    padding: 2rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.14em;
+    color: var(--dim);
+  }
+
+  .footer-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: var(--dim);
+  }
+
+  /* FULL-WIDTH RULE */
+  .full-bleed {
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .full-bleed > section,
+  .full-bleed-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 1.25rem 1.5rem; }
+    .nav-links { gap: 1.5rem; }
+    section { padding: 5rem 1.5rem; }
+    .hero { padding: 0 1.5rem 4rem; }
+    .lyric-block { grid-template-columns: 1fr; gap: 2.5rem; }
+    .photo-grid { grid-template-columns: 1fr 1fr; }
+    .photo-cell:first-child { grid-column: span 2; grid-row: span 1; }
+    .hero-line, .hero-counter { display: none; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-logo">Saint Mistake</a>
+  <ul class="nav-links">
+    <li><a href="#music">Music</a></li>
+    <li><a href="#photography">Photography</a></li>
+    <li><a href="#writing">Writing</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-noise"></div>
+  <div class="hero-line"></div>
+  <div class="hero-counter">SAINT MISTAKE &mdash; EST. HERE &mdash;</div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Music &bull; Photography &bull; Words</p>
+    <h1 class="hero-title">
+      Saint
+      <span>Mistake</span>
+    </h1>
+    <p class="hero-desc">Loud where it counts.<br>Quiet in all the wrong places.</p>
+    <a href="#music" class="hero-cta">
+      <span class="play-dot"></span>
+      Enter the noise
+    </a>
+  </div>
+</div>
+
+<!-- MUSIC -->
+<section id="music">
+  <p class="section-label">Music</p>
+  <h2 class="section-title">The Noise</h2>
+  <p style="color: var(--ash); font-style: italic; max-width: 460px; line-height: 1.9;">
+    Add your tracks, albums, or a Bandcamp / SoundCloud embed here. Below are placeholder cards to show the layout.
+  </p>
+
+  <div class="music-grid">
+    <div class="track-card">
+      <span class="track-num">01</span>
+      <div class="track-title">Track Title Here</div>
+      <div class="track-meta">Album name &bull; 3:47</div>
+      <div class="track-play"><span class="play-dot"></span> Play</div>
+    </div>
+    <div class="track-card">
+      <span class="track-num">02</span>
+      <div class="track-title">Another Track</div>
+      <div class="track-meta">Single &bull; 4:12</div>
+      <div class="track-play"><span class="play-dot"></span> Play</div>
+    </div>
+    <div class="track-card">
+      <span class="track-num">03</span>
+      <div class="track-title">B-Side No. 1</div>
+      <div class="track-meta">EP name &bull; 2:58</div>
+      <div class="track-play"><span class="play-dot"></span> Play</div>
+    </div>
+    <div class="track-card">
+      <span class="track-num">04</span>
+      <div class="track-title">Live Session</div>
+      <div class="track-meta">Live at [Venue] &bull; 5:30</div>
+      <div class="track-play"><span class="play-dot"></span> Play</div>
+    </div>
+    <div class="track-card">
+      <span class="track-num">05</span>
+      <div class="track-title">Unreleased Cut</div>
+      <div class="track-meta">Demo &bull; 3:22</div>
+      <div class="track-play"><span class="play-dot"></span> Play</div>
+    </div>
+    <div class="track-card">
+      <span class="track-num">06</span>
+      <div class="track-title">Your Song Here</div>
+      <div class="track-meta">Your album &bull; &mdash;</div>
+      <div class="track-play"><span class="play-dot"></span> Play</div>
+    </div>
+  </div>
+</section>
+
+<!-- PHOTOGRAPHY -->
+<section id="photography">
+  <p class="section-label">Photography</p>
+  <h2 class="section-title">The Frame</h2>
+  <p class="photo-intro">Replace the placeholder cells below with your own images — swap the <code style="color: var(--red); font-size: 0.85em;">&lt;div class="photo-placeholder"&gt;</code> for an <code style="color: var(--red); font-size: 0.85em;">&lt;img&gt;</code>.</p>
+
+  <div class="photo-grid">
+    <div class="photo-cell">
+      <div class="photo-placeholder">
+        <span class="photo-placeholder-text">Add photo here</span>
+      </div>
+      <div class="photo-caption">Featured — [Caption]</div>
+    </div>
+    <div class="photo-cell">
+      <div class="photo-placeholder">
+        <span class="photo-placeholder-text">Photo</span>
+      </div>
+      <div class="photo-caption">[Caption]</div>
+    </div>
+    <div class="photo-cell">
+      <div class="photo-placeholder">
+        <span class="photo-placeholder-text">Photo</span>
+      </div>
+      <div class="photo-caption">[Caption]</div>
+    </div>
+    <div class="photo-cell">
+      <div class="photo-placeholder">
+        <span class="photo-placeholder-text">Photo</span>
+      </div>
+      <div class="photo-caption">[Caption]</div>
+    </div>
+    <div class="photo-cell">
+      <div class="photo-placeholder">
+        <span class="photo-placeholder-text">Photo</span>
+      </div>
+      <div class="photo-caption">[Caption]</div>
+    </div>
+  </div>
+</section>
+
+<!-- WRITING -->
+<section id="writing">
+  <p class="section-label">Writing</p>
+  <h2 class="section-title">The Words</h2>
+
+  <div class="lyric-block">
+    <div class="lyric-piece">
+      <div class="lyric-piece-title">Verse I &mdash; [Song Title]</div>
+      <div class="lyric-text"><em>Replace this with your actual lyrics or poetry.</em>
+A line that burns on the way down,
+another that sits in your teeth.
+<em>The chorus comes when you least expect it,</em>
+everything you swallowed underneath.</div>
+      <div class="lyric-source">From: [Album / Single]</div>
+    </div>
+
+    <div class="lyric-piece">
+      <div class="lyric-piece-title">Excerpt &mdash; [Poem / Song]</div>
+      <div class="lyric-text">Drop in a second piece here —
+<em>a verse, a fragment, a line</em>
+that represents your voice.
+This space is yours to fill.</div>
+      <div class="lyric-source">From: [Work]</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <p class="section-label">Contact</p>
+  <h2 class="contact-title">Make<br>Some Noise</h2>
+  <p class="contact-sub">Bookings, collabs, or just a reason to reach out.</p>
+  <a href="mailto:your@email.com" class="contact-link">Get in touch</a>
+</section>
+
+<footer>
+  <span class="footer-name">Saint Mistake</span>
+  <span class="footer-copy">&copy; 2026 &mdash; All rights reserved</span>
+</footer>
+
+</body>
+</html>
