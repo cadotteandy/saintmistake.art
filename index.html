@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -477,8 +478,10 @@
     line-height: 2;
     color: var(--ash);
     font-style: italic;
-    white-space: pre-line;
   }
+
+  .lyric-text p { margin-bottom: 0.6em; }
+  .lyric-text p:last-child { margin-bottom: 0; }
 
   .lyric-text em {
     color: var(--white);
@@ -628,12 +631,12 @@
   <h2 class="section-title">The Noise</h2>
   <div style="margin-top: 2rem; max-width: 800px;">
     <iframe
+      id="sc-player"
       width="100%"
       height="450"
       scrolling="no"
       frameborder="no"
       allow="autoplay"
-      src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/letsmakemistakes&color=%23e63333&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=true"
       style="border-radius: 4px; display: block;"
     ></iframe>
   </div>
@@ -643,24 +646,7 @@
 <section id="photography">
   <p class="section-label">Photography</p>
   <h2 class="section-title">The Frame</h2>
-
-  <div class="photo-grid">
-    <div class="photo-cell" data-index="0">
-      <img src="images/A6700338.JPG" alt="">
-    </div>
-    <div class="photo-cell" data-index="1">
-      <img src="images/A6700397.JPG" alt="">
-    </div>
-    <div class="photo-cell" data-index="2">
-      <img src="images/A6700327.JPG" alt="">
-    </div>
-    <div class="photo-cell" data-index="3">
-      <img src="images/A6701527.JPG" alt="">
-    </div>
-    <div class="photo-cell" data-index="4">
-      <img src="images/A6701565.JPG" alt="">
-    </div>
-  </div>
+  <div class="photo-grid" id="photo-grid"></div>
 </section>
 
 <!-- LIGHTBOX -->
@@ -675,27 +661,7 @@
 <section id="writing">
   <p class="section-label">Writing</p>
   <h2 class="section-title">The Words</h2>
-
-  <div class="lyric-block">
-    <div class="lyric-piece">
-      <div class="lyric-piece-title">Verse I &mdash; [Song Title]</div>
-      <div class="lyric-text"><em>Replace this with your actual lyrics or poetry.</em>
-A line that burns on the way down,
-another that sits in your teeth.
-<em>The chorus comes when you least expect it,</em>
-everything you swallowed underneath.</div>
-      <div class="lyric-source">From: [Album / Single]</div>
-    </div>
-
-    <div class="lyric-piece">
-      <div class="lyric-piece-title">Excerpt &mdash; [Poem / Song]</div>
-      <div class="lyric-text">Drop in a second piece here —
-<em>a verse, a fragment, a line</em>
-that represents your voice.
-This space is yours to fill.</div>
-      <div class="lyric-source">From: [Work]</div>
-    </div>
-  </div>
+  <div class="lyric-block" id="lyric-block"></div>
 </section>
 
 <!-- CONTACT -->
@@ -712,6 +678,7 @@ This space is yours to fill.</div>
 </footer>
 
 <script>
+/* GLITCH */
 (function () {
   var title = document.querySelector('.hero-title');
   var chars  = '╬║▓░█▄▀▐▌╪╩═╔╗╚╝▒■▪◆╫';
@@ -752,55 +719,55 @@ This space is yours to fill.</div>
     }
   }
 
-  /* Fire roughly in sync with the 9s CSS animation cycle (glitch at ~80% = 7.2s) */
   setTimeout(function kick() {
     runGlitch();
     setTimeout(kick, 8500 + Math.random() * 1200);
   }, 7200);
 })();
 
-/* LIGHTBOX */
+/* CONTENT + LIGHTBOX */
 (function () {
-  var srcs = [
-    'images/A6700338.JPG',
-    'images/A6700397.JPG',
-    'images/A6700327.JPG',
-    'images/A6701527.JPG',
-    'images/A6701565.JPG'
-  ];
-  var lb    = document.getElementById('lightbox');
-  var lbImg = lb.querySelector('.lightbox-img');
-  var current = 0;
+  if (window.marked && window.marked.setOptions) {
+    window.marked.setOptions({ breaks: true });
+  }
 
-  function open(i) {
-    current = i;
-    lbImg.src = srcs[current];
+  function renderMarkdown(text) {
+    if (!text) return '';
+    return window.marked ? window.marked.parse(text) : text.replace(/\n/g, '<br>');
+  }
+
+  /* Lightbox */
+  var lbSrcs = [];
+  var lbCurrent = 0;
+  var lb     = document.getElementById('lightbox');
+  var lbImg  = lb.querySelector('.lightbox-img');
+
+  function lbOpen(i) {
+    lbCurrent = ((i % lbSrcs.length) + lbSrcs.length) % lbSrcs.length;
+    lbImg.src = lbSrcs[lbCurrent];
     lb.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
 
-  function close() {
+  function lbClose() {
     lb.classList.remove('open');
     document.body.style.overflow = '';
   }
 
-  function prev() { open((current - 1 + srcs.length) % srcs.length); }
-  function next() { open((current + 1) % srcs.length); }
-
-  document.querySelectorAll('.photo-cell[data-index]').forEach(function (cell) {
-    cell.addEventListener('click', function () { open(Number(cell.dataset.index)); });
+  lb.querySelector('.lightbox-close').addEventListener('click', lbClose);
+  lb.querySelector('.lightbox-prev').addEventListener('click', function (e) {
+    e.stopPropagation(); lbOpen(lbCurrent - 1);
   });
-
-  lb.querySelector('.lightbox-close').addEventListener('click', close);
-  lb.querySelector('.lightbox-prev').addEventListener('click', function (e) { e.stopPropagation(); prev(); });
-  lb.querySelector('.lightbox-next').addEventListener('click', function (e) { e.stopPropagation(); next(); });
-  lb.addEventListener('click', function (e) { if (e.target === lb) close(); });
+  lb.querySelector('.lightbox-next').addEventListener('click', function (e) {
+    e.stopPropagation(); lbOpen(lbCurrent + 1);
+  });
+  lb.addEventListener('click', function (e) { if (e.target === lb) lbClose(); });
 
   document.addEventListener('keydown', function (e) {
     if (!lb.classList.contains('open')) return;
-    if (e.key === 'Escape')     close();
-    if (e.key === 'ArrowLeft')  prev();
-    if (e.key === 'ArrowRight') next();
+    if (e.key === 'Escape')     lbClose();
+    if (e.key === 'ArrowLeft')  lbOpen(lbCurrent - 1);
+    if (e.key === 'ArrowRight') lbOpen(lbCurrent + 1);
   });
 
   var touchStartX = 0;
@@ -810,8 +777,75 @@ This space is yours to fill.</div>
   lbImg.addEventListener('touchend', function (e) {
     var delta = e.changedTouches[0].clientX - touchStartX;
     if (Math.abs(delta) < 40) return;
-    if (delta < 0) next(); else prev();
+    lbOpen(delta < 0 ? lbCurrent + 1 : lbCurrent - 1);
   }, { passive: true });
+
+  /* Content loading */
+  Promise.all([
+    fetch('data/music.json').then(function (r) { return r.json(); }),
+    fetch('data/photos.json').then(function (r) { return r.json(); }),
+    fetch('data/writing.json').then(function (r) { return r.json(); })
+  ]).then(function (results) {
+    var music   = results[0];
+    var photos  = results[1];
+    var writing = results[2];
+
+    /* Music */
+    var player = document.getElementById('sc-player');
+    if (player && music.soundcloud_url) {
+      player.src =
+        'https://w.soundcloud.com/player/?url=' +
+        encodeURIComponent(music.soundcloud_url) +
+        '&color=%23e63333&auto_play=false&hide_related=true' +
+        '&show_comments=false&show_user=true&show_reposts=false' +
+        '&show_teaser=false&visual=true';
+    }
+
+    /* Photos */
+    var grid = document.getElementById('photo-grid');
+    if (grid && photos.photos && photos.photos.length) {
+      lbSrcs = photos.photos.map(function (p) { return p.src; });
+      photos.photos.forEach(function (photo, i) {
+        var cell = document.createElement('div');
+        cell.className = 'photo-cell';
+        cell.dataset.index = i;
+        var img = document.createElement('img');
+        img.src = photo.src;
+        img.alt = photo.alt || '';
+        cell.appendChild(img);
+        cell.addEventListener('click', function () { lbOpen(i); });
+        grid.appendChild(cell);
+      });
+    }
+
+    /* Writing */
+    var block = document.getElementById('lyric-block');
+    if (block && writing.pieces && writing.pieces.length) {
+      writing.pieces.forEach(function (piece) {
+        var el = document.createElement('div');
+        el.className = 'lyric-piece';
+
+        var titleEl = document.createElement('div');
+        titleEl.className = 'lyric-piece-title';
+        titleEl.textContent = piece.title;
+
+        var textEl = document.createElement('div');
+        textEl.className = 'lyric-text';
+        textEl.innerHTML = renderMarkdown(piece.text);
+
+        var sourceEl = document.createElement('div');
+        sourceEl.className = 'lyric-source';
+        sourceEl.textContent = piece.source;
+
+        el.appendChild(titleEl);
+        el.appendChild(textEl);
+        el.appendChild(sourceEl);
+        block.appendChild(el);
+      });
+    }
+  }).catch(function (err) {
+    console.error('Content load failed:', err);
+  });
 })();
 </script>
 

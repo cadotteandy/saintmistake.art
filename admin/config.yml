@@ -1,0 +1,51 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: images
+public_folder: /images
+
+collections:
+  - name: music
+    label: "Music"
+    files:
+      - name: music
+        label: "Music Settings"
+        file: data/music.json
+        format: json
+        fields:
+          - label: "SoundCloud Profile URL"
+            name: soundcloud_url
+            widget: string
+            hint: "e.g. https://soundcloud.com/letsmakemistakes"
+
+  - name: writing
+    label: "Writing"
+    files:
+      - name: writing
+        label: "Writing Pieces"
+        file: data/writing.json
+        format: json
+        fields:
+          - label: "Pieces"
+            name: pieces
+            widget: list
+            fields:
+              - {label: "Title", name: title, widget: string}
+              - {label: "Text", name: text, widget: markdown}
+              - {label: "Source / Credit", name: source, widget: string}
+
+  - name: photos
+    label: "Photography"
+    files:
+      - name: photos
+        label: "Photo Gallery"
+        file: data/photos.json
+        format: json
+        fields:
+          - label: "Photos"
+            name: photos
+            widget: list
+            fields:
+              - {label: "Image", name: src, widget: image}
+              - {label: "Alt Text", name: alt, widget: string, required: false}
