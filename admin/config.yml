@@ -1,6 +1,7 @@
 backend:
   name: git-gateway
   branch: main
+  site_domain: saintmistake.netlify.app
 
 media_folder: images
 public_folder: /images
